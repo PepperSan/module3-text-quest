@@ -19,5 +19,22 @@ public class StartServlet extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/jsp/start.jsp")
                 .forward(req, resp);
     }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String choice = req.getParameter("choice");
+
+        if ("yes".equals(choice)) {
+            req.setAttribute("result", "Ты принял вызов НЛО.");
+        } else {
+            req.setAttribute("result", "Ты отказался от вызова.");
+        }
+
+        req.getRequestDispatcher("/WEB-INF/jsp/result.jsp")
+                .forward(req, resp);
+    }
+
 }
 
