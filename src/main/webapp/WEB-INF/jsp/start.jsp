@@ -7,13 +7,17 @@
 </head>
 <body>
 
-<h1>Ты потерял память.</h1>
-<p>Принять вызов НЛО?</p>
+<h1>Айтишник-шопоголик</h1>
+<p>
+    Ты решил обновить гаджеты, но как всегда — есть соблазн:
+    Dota, сон… или всё-таки торговый центр.
+</p>
 
-<form method="post" action="/">
-    <button type="submit" name="choice" value="yes">Принять вызов</button>
-    <button type="submit" name="choice" value="no">Отклонить вызов</button>
+<form method="post" action="${pageContext.request.contextPath}/module3_text_quest">
+    <button type="submit" name="choice" value="start">Начать игру</button>
 </form>
+
 
 </body>
 </html>
+

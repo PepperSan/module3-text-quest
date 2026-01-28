@@ -15,10 +15,9 @@ public class StartServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
-        req.getRequestDispatcher("/WEB-INF/jsp/start.jsp")
-                .forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/start.jsp").forward(req, resp);
     }
+
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -26,15 +25,41 @@ public class StartServlet extends HttpServlet {
 
         String choice = req.getParameter("choice");
 
-        if ("yes".equals(choice)) {
-            req.setAttribute("result", "Ты принял вызов НЛО.");
-        } else {
-            req.setAttribute("result", "Ты отказался от вызова.");
+//        if (!"start".equals(choice)) {
+//            resp.sendRedirect(req.getContextPath() + "/module3_text_quest");
+//            return;
+//        }
+
+// стартовые значения (пока каждый раз одни и те же)
+        req.setAttribute("step", "home");
+        req.setAttribute("money", 1000);
+        req.setAttribute("calories", 0);
+
+// дефолтный текст
+        String text =
+                "Что сделаешь прямо сейчас?\n" +
+                        "1) Поиграть в Dota\n" +
+                        "2) Поспать\n" +
+                        "3) Пойти в торговый центр";
+
+// первый реальный выбор
+        if ("dota".equals(choice)) {
+            text = "Ты залип в Dota всю ночь. Минус продуктивность.";
         }
 
-        req.getRequestDispatcher("/WEB-INF/jsp/result.jsp")
-                .forward(req, resp);
+        if ("sleep".equals(choice)) {
+            text = "Ты хорошо выспался и восстановил силы.";
+        }
+
+        if ("shop".equals(choice)) {
+            text = "Ты пошёл в торговый центр и потратил деньги.";
+        }
+
+        req.setAttribute("text", text);
+        req.getRequestDispatcher("/WEB-INF/jsp/view.jsp").forward(req, resp);
+
     }
+
 
 }
 
