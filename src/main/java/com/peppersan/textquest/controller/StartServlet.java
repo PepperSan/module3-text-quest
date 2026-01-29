@@ -23,12 +23,10 @@ public class StartServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String choice = req.getParameter("choice");
+        int money = parseIntOrDefault(req.getParameter("money"), 1000);
+        int calories = parseIntOrDefault(req.getParameter("calories"), 0);
 
-//        if (!"start".equals(choice)) {
-//            resp.sendRedirect(req.getContextPath() + "/module3_text_quest");
-//            return;
-//        }
+        String choice = req.getParameter("choice");
 
 // стартовые значения (пока каждый раз одни и те же)
         req.setAttribute("step", "home");
@@ -42,24 +40,48 @@ public class StartServlet extends HttpServlet {
                         "2) Поспать\n" +
                         "3) Пойти в торговый центр";
 
+
 // первый реальный выбор
         if ("dota".equals(choice)) {
-            text = "Ты залип в Dota всю ночь. Минус продуктивность.";
+            if (money < 100) {
+                req.setAttribute("text", "Денег на донат нет. Идёшь спать/работать 😄");
+            } else {
+                money -= 100;
+                calories += 50;
+                req.setAttribute("text", "Ты залип в Dota всю ночь. -100 денег, +50 калорий.");
+            }
         }
 
         if ("sleep".equals(choice)) {
-            text = "Ты хорошо выспался и восстановил силы.";
+            calories -= 20;
+            text = "Ты выспался. -20 калорий (организм восстановился).";
         }
 
         if ("shop".equals(choice)) {
-            text = "Ты пошёл в торговый центр и потратил деньги.";
+            money -= 300;
+            calories += 30;
+            text = "Ты сходил в торговый центр. -300 денег, +30 калорий (фудкорт).";
         }
 
+
+        req.setAttribute("step", "home");
+        req.setAttribute("money", money);
+        req.setAttribute("calories", calories);
         req.setAttribute("text", text);
+
         req.getRequestDispatcher("/WEB-INF/jsp/view.jsp").forward(req, resp);
+
 
     }
 
+    private int parseIntOrDefault(String value, int def) {
+        if (value == null || value.isBlank()) return def;
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return def;
+        }
+    }
 
 }
 
