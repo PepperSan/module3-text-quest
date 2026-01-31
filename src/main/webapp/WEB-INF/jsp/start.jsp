@@ -13,10 +13,9 @@
     Dota, сон… или всё-таки торговый центр.
 </p>
 
-<form method="post" action="${pageContext.request.contextPath}/module3_text_quest">
+<form method="post" action="${pageContext.request.contextPath}/">
     <button type="submit" name="choice" value="start">Начать игру</button>
 </form>
-
 
 </body>
 </html>
