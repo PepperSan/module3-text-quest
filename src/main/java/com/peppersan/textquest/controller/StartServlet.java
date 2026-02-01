@@ -38,21 +38,17 @@ public class StartServlet extends HttpServlet {
         Integer moneyObj = (Integer) session.getAttribute("money");
         Integer caloriesObj = (Integer) session.getAttribute("calories");
         String step = (String) session.getAttribute("step");
-
-        int money = (moneyObj == null) ? 1000 : moneyObj;
-        int calories = (caloriesObj == null) ? 0 : caloriesObj;
-        if (step == null) step = "home";
-
+        String cart = (String) session.getAttribute("cart");
         String choice = req.getParameter("choice");
         String lastChoice = (String) session.getAttribute("lastChoice");
         String text = "Выбирай: Dota / Сон / ТЦ";
-        String cart = (String) session.getAttribute("cart");
-
 
         if (cart == null) {
             cart = "";
         }
-
+        int money = (moneyObj == null) ? 1000 : moneyObj;
+        int calories = (caloriesObj == null) ? 0 : caloriesObj;
+        if (step == null) step = "home";
 
         if (choice != null && choice.equals(lastChoice)) {
             text = "⏳ Ты только что это сделал. Выбери другое действие.";
@@ -74,9 +70,10 @@ public class StartServlet extends HttpServlet {
 
         // действия
         else if ("dota".equals(choice)) {
-            money -= 100;
-            calories += 30;
-            text = "Ты залип в Dota всю ночь. -100 денег, +30 калорий.";
+            calories += 50;
+            text = "Ты залип в Dota всю ночь. +50 калорий.";
+            step = "home";
+
         }
 
 
@@ -91,32 +88,17 @@ public class StartServlet extends HttpServlet {
             }
         }
 
-
-
         if ("shop".equals(choice)) {
-            money -= 300;
-            calories += 30;
-            text = "Ты сходил в торговый центр. -300 денег, +30 калорий (фудкорт).";
+            step = "mall";
+            text = "🏬 Ты в торговом центре. Куда идём?";
         }
+
 
         // предупреждение про такси (когда меньше 100, но не 0)
         if (money > 0 && money < 100) {
             text += "\n⚠️ Осталось меньше 100. Оставь на автобус/такси, иначе пойдёшь пешком.";
         }
 
-        // если деньги кончились — “идёшь домой пешком”
-        if (money <= 0) {
-            money = 0;
-            step = "walkHome";
-            calories -= 30;
-            text = "🚶 Денег на транспорт нет — идёшь домой пешком. -30 калорий.";
-        }
-
-        if (calories >= 120) {
-            calories = 120;
-            text = "😵 Перегруз. Слишком много калорий — ты валишься на диван.";
-            step = "restHome";
-        }
 
         if ("shop".equals(choice)) {
             step = "mall";
@@ -126,13 +108,14 @@ public class StartServlet extends HttpServlet {
 
         if ("mall_food".equals(choice)) {
             step = "food";
-            text = "Фудкорт пахнет победой и фастфудом. Что берём?";
+            text = "🍕 Фудкорт пахнет победой и фастфудом. Что берём?";
         }
 
         if ("mall_electronics".equals(choice)) {
             step = "electronics";
-            text = "Магазин электроники. Выбирай покупку!";
+            text = "🖥️ Магазин электроники. Выбирай покупку!";
         }
+
 
         if ("buy_pizza".equals(choice)) {
             if (money >= 80) {
@@ -161,6 +144,7 @@ public class StartServlet extends HttpServlet {
         }
 
 
+        String currentStep = step;
 
         if ("buy".equals(choice)) {
             String itemId = req.getParameter("itemId");
@@ -183,30 +167,49 @@ public class StartServlet extends HttpServlet {
                 session.setAttribute("cart", cart);
 
                 text = "✅ Купил: " + item.name + " (-" + item.price + ").";
-                step = "shop";
+                step = currentStep;
+            }
+
+
+        }
+
+        if (money <= 0) {
+            money = 0;
+
+            if (!"home".equals(step) && !"restHome".equals(step)) {
+                text = "🚶 Денег на транспорт нет — идёшь домой пешком. -30 калорий.";
+                calories -= 30;
+                step = "walkHome";
             }
         }
+        if (calories < 0) calories = 0;
+
+
+        if (calories >= 120) {
+            calories = 120;
+            text = "😵 Перегруз. Слишком много калорий — ты валишься на диван.";
+            step = "restHome";
+        }
+
 
         if ("backHome".equals(choice)) {
             step = "home";
-            text = "Ты дома. Что делаешь дальше?";
+            text = "🏠 Ты дома. Что делаешь дальше?";
         }
+
 
         if ("back_mall".equals(choice)) {
             step = "mall";
-            text = "Куда дальше в ТЦ?";
+            text = "🏬 Ты снова в ТЦ. Куда дальше?";
         }
-
-
-
-
-
 
         // сохраняем в session
         session.setAttribute("lastChoice", choice);
         session.setAttribute("money", money);
         session.setAttribute("calories", calories);
         session.setAttribute("step", step);
+        session.setAttribute("cart", cart);
+
 
         // отдаем в JSP
         req.setAttribute("step", step);
